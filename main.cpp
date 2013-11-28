@@ -20,7 +20,15 @@ int main (int argc, char** argv)
   heightMapBuilder.SetDestSize (tilesidelenght,tilesidelenght);
   for (int i = 0; i < tilexnumber; ++i) {
   for (int j = 0; j < tilexnumber; ++j) {
-  heightMapBuilder.SetBounds (i, i+1.0, j, j+1.0);
+
+  float rx=i-0.001;
+  float rl=i+1.001;
+  float ry=j-0.001;
+  float rh=j+1.001;
+
+
+
+  heightMapBuilder.SetBounds (rx,rl,ry,rh);
   heightMapBuilder.Build ();
 
   utils::RendererImage renderer;
@@ -35,14 +43,14 @@ int main (int argc, char** argv)
   si << i;
   std::stringstream sj;
   sj << j;
-  std::string ss = std::string("tile_")+ si.str() +std::string("_") + sj.str() + std::string(".bmp");
-  std::string js = std::string("tile_")+ si.str() +std::string("_") + sj.str() + std::string(".js");
+  std::string ss = std::string("images/tile_")+ si.str() +std::string("_") + sj.str() + std::string(".bmp");
+//  std::string js = std::string("tile_")+ si.str() +std::string("_") + sj.str() + std::string(".js");
   ofstream myfile;
-char tab2[1024];
-strcpy(tab2, js.c_str());
-  myfile.open(tab2);
-  myfile << result;
-  myfile.close();
+//char tab2[1024];
+//strcpy(tab2, js.c_str());
+//  myfile.open(tab2);
+//  myfile << result;
+//  myfile.close();
 
   writer.SetDestFilename(ss);
   writer.WriteDestFile ();

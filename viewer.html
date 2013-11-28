@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<script src="js/Three.js"></script>
+<script src="js/OrbitControls.js"></script>
+
+<script id="vertexShader" type="x-shader/x-vertex">
+uniform sampler2D bumpTexture;
+uniform float bumpScale;
+
+varying float vAmount;
+varying vec2 vUV;
+
+
+void main() 
+{ 
+	vUV = uv;
+    vec4 tx = texture2D( bumpTexture, vUV);   
+	vAmount = tx.g;
+    vec3 newPosition = position + normal  * vAmount * bumpScale;
+	
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+}
+</script>
+<script id="fragmentShader" type="x-shader/x-vertex"> 
+uniform sampler2D oceanTexture;
+uniform sampler2D sandyTexture;
+uniform sampler2D grassTexture;
+uniform sampler2D rockyTexture;
+uniform sampler2D snowyTexture;
+uniform sampler2D bumpTexture;
+
+varying vec2 vUV;
+
+varying float vAmount;
+
+void main() 
+{
+	vec4 water = (smoothstep(0.01, 0.25, vAmount) - smoothstep(0.24, 0.26, vAmount)) * texture2D( oceanTexture, vUV * 10.0 );
+	vec4 sandy = (smoothstep(0.24, 0.27, vAmount) - smoothstep(0.28, 0.31, vAmount)) * texture2D( sandyTexture, vUV * 10.0 );
+	vec4 grass = (smoothstep(0.28, 0.32, vAmount) - smoothstep(0.35, 0.40, vAmount)) * texture2D( grassTexture, vUV * 20.0 );
+	vec4 rocky = (smoothstep(0.30, 0.50, vAmount) - smoothstep(0.40, 0.70, vAmount)) * texture2D( rockyTexture, vUV * 20.0 );
+	vec4 snowy = (smoothstep(0.50, 0.65, vAmount))                                   * texture2D( snowyTexture, vUV * 10.0 );
+	vec4 tx = texture2D( bumpTexture, vUV);  
+	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0) + water + sandy + grass + rocky + snowy; //, 1.0);
+}  
+</script>
+<div id="webgl" style="position: absolute; left:0px; top:0px;width:100%;height:100%;"></div>
+<script>
+var container, scene, camera, renderer, controls;
+
+init();
+animate();
+	
+function init() {
+	scene = new THREE.Scene();
+	// CAMERA
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(0,100,400);
+	camera.lookAt(scene.position);	
+	// RENDERER
+	renderer = new THREE.WebGLRenderer( {antialias:true} );
+
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	container = document.getElementById( 'webgl' );
+	container.appendChild( renderer.domElement );
+
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+	var bumpScale   = 200.0;
+
+
+
+	var oceanTexture = new THREE.ImageUtils.loadTexture( 'images/dirt-512.jpg' );
+	oceanTexture.wrapS = oceanTexture.wrapT = THREE.RepeatWrapping; 
+	
+	var sandyTexture = new THREE.ImageUtils.loadTexture( 'images/sand-512.jpg' );
+	sandyTexture.wrapS = sandyTexture.wrapT = THREE.RepeatWrapping; 
+	
+	var grassTexture = new THREE.ImageUtils.loadTexture( 'images/grass-512.jpg' );
+	grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping; 
+	
+	var rockyTexture = new THREE.ImageUtils.loadTexture( 'images/rock-512.jpg' );
+	rockyTexture.wrapS = rockyTexture.wrapT = THREE.RepeatWrapping; 
+	
+	var snowyTexture = new THREE.ImageUtils.loadTexture( 'images/snow-512.jpg' );
+	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping; 
+
+/////
+
+
+	var bumpTexture = new THREE.ImageUtils.loadTexture( 'images/tile_0_0.bmp' );
+	var bumpTexture2 = new THREE.ImageUtils.loadTexture( 'images/tile_0_1.bmp' );
+	
+	
+	// use "this." to create global object
+	this.customUniforms = {
+		bumpTexture:	{ type: "t", value: bumpTexture },
+		bumpScale:	    { type: "f", value: bumpScale },
+		oceanTexture:	{ type: "t", value: oceanTexture },
+		sandyTexture:	{ type: "t", value: sandyTexture },
+		grassTexture:	{ type: "t", value: grassTexture },
+		rockyTexture:	{ type: "t", value: rockyTexture },
+		snowyTexture:	{ type: "t", value: snowyTexture },
+	};
+
+	// use "this." to create global object
+	this.customUniforms2 = {
+		bumpTexture:	{ type: "t", value: bumpTexture2 },
+		bumpScale:	    { type: "f", value: bumpScale },
+		oceanTexture:	{ type: "t", value: oceanTexture },
+		sandyTexture:	{ type: "t", value: sandyTexture },
+		grassTexture:	{ type: "t", value: grassTexture },
+		rockyTexture:	{ type: "t", value: rockyTexture },
+		snowyTexture:	{ type: "t", value: snowyTexture },
+	};
+	
+	// create custom material from the shader code above
+	//   that is within specially labelled script tags
+	var customMaterial = new THREE.ShaderMaterial( 
+	{
+	    uniforms: customUniforms,
+		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+		// side: THREE.DoubleSide
+	}   );
+	// create custom material from the shader code above
+	//   that is within specially labelled script tags
+	var customMaterial2 = new THREE.ShaderMaterial( 
+	{
+	    uniforms: customUniforms2,
+		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+		// side: THREE.DoubleSide
+	}   );
+		
+	var planeGeo = new THREE.PlaneGeometry( 1280, 1280, 64,64 );
+	
+
+
+/////
+	this.bumpTextures = [];
+	this.customUniformsArray = [];
+	this.customMaterials=[]; 
+var i =0;
+for (var i=0;i<10;i++) {
+	for (var j=0;j<10;j++){
+	
+		var texture = new THREE.ImageUtils.loadTexture( 'images/tile_'+i+'_'+j+'.bmp' );
+ 		
+ 		var uniforms = {
+		bumpTexture:	{ type: "t", value: texture },
+		bumpScale:	    { type: "f", value: bumpScale },
+		oceanTexture:	{ type: "t", value: oceanTexture },
+		sandyTexture:	{ type: "t", value: sandyTexture },
+		grassTexture:	{ type: "t", value: grassTexture },
+		rockyTexture:	{ type: "t", value: rockyTexture },
+		snowyTexture:	{ type: "t", value: snowyTexture },
+		};
+
+		var material = new THREE.ShaderMaterial( 
+		{
+		    uniforms: uniforms,
+			vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+			fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+			// side: THREE.DoubleSide
+		}   );
+
+		var plane = new THREE.Mesh(	planeGeo, material );
+		plane.rotation.x = -Math.PI / 2;
+		plane.position.y = -100;
+		plane.position.z = -1278*j;
+		plane.position.x = 1278*i;
+
+		scene.add( plane );
+		
+	}
+}
+/*
+	var plane = new THREE.Mesh(	planeGeo, customMaterial );
+	plane.rotation.x = -Math.PI / 2;
+	plane.position.y = -100;
+
+	var plane2 = new THREE.Mesh(	planeGeo, customMaterial2 );
+	plane2.rotation.x = -Math.PI / 2;
+	plane2.position.y = -100;
+	plane2.position.z = -1278;
+
+	scene.add( plane );
+	scene.add( plane2 );
+*/	
+}
+
+function animate() 
+{
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{	
+	controls.update();
+}
+
+function render() 
+{
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body></html>
