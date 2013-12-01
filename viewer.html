@@ -3,10 +3,12 @@
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
-<body>
+<body  width="100%" height="100%">
 <script src="js/Three.js"></script>
 <script src="js/OrbitControls.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 
+<canvas id="myCanvas" width="512" height="512" style="visibility:hidden;z-index:0;"></canvas>
 <script id="vertexShader" type="x-shader/x-vertex">
 uniform sampler2D heightMap;
 uniform float heightScale;
@@ -50,7 +52,7 @@ void main()
 </script>
 <div id="webgl" style="position: absolute; left:0px; top:0px;width:100%;height:100%;"></div>
 <script>
-var container, scene, camera, renderer, controls;
+var container, scene, camera, renderer, controls, imgTilePaths,currentTile;
 
 init();
 animate();
@@ -74,6 +76,8 @@ function init() {
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 	var heightScale   = 200.0;
+	currentTile = -1;
+	imgTilePaths= new Array();
 
 	var oceanTexture = new THREE.ImageUtils.loadTexture( 'images/dirt-512.jpg' );
 	oceanTexture.wrapS = oceanTexture.wrapT = THREE.RepeatWrapping; 
@@ -91,13 +95,19 @@ function init() {
 	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping; 
 
 		
-	var planeGeo = new THREE.PlaneGeometry( 1280, 1280, 64,64 );
+	var planeGeo = new THREE.PlaneGeometry( 1024, 1024, 64,64 );
+
+
 
 	var i =0;
-	for (var i=0;i<10;i++) {
-		for (var j=0;j<10;j++){
+	for (var i=0;i<4;i++) {
+		for (var j=0;j<4;j++){
+
+var imgPath = 'http://localhost:81/orpgl/orpgl-mapgen/images/tile_'+i+'_'+j+'.bmp' ;
+
+imgTilePaths[i*j] = imgPath;
 		
-			var texture = new THREE.ImageUtils.loadTexture( 'images/tile_'+i+'_'+j+'.bmp' );
+			var texture = new THREE.ImageUtils.loadTexture(imgPath);
 	 		
 	 		var uniforms = {
 			heightMap:	{ type: "t", value: texture },
@@ -120,8 +130,8 @@ function init() {
 			var plane = new THREE.Mesh(	planeGeo, material );
 			plane.rotation.x = -Math.PI / 2;
 			plane.position.y = -100;
-			plane.position.z = -1278*j;
-			plane.position.x = 1278*i;
+			plane.position.z = -1022*j;
+			plane.position.x = 1022*i;
 
 			scene.add( plane );
 			
@@ -139,12 +149,35 @@ function animate()
 function update()
 {	
 	controls.update();
+	getHeight(camera);
 }
 
 function render() 
 {
 	renderer.render( scene, camera );
 }
+
+function getHeight(object){
+
+	if (currentTile == -1) {
+		var ctx = document.getElementById('myCanvas').getContext('2d');
+	  	var img = new Image();
+	  	img.src = imgTilePaths[0];
+	  	img.onload = function(){
+	    	ctx.drawImage(img,0,0,512,512);
+		}
+		currentTile = 0;
+	}
+	var ctx =document.getElementById('myCanvas').getContext('2d');
+	var imageData = ctx.getImageData(0, 0, 512,512);
+	var x = Math.floor(object.position.x/2+256);
+	var z = Math.floor(object.position.z/2+256);
+	var index = 4 * (z * 512 + x);
+	var height = imageData.data[index];	
+	 if (x>0 && x<=512 && z>0 && z<=512) 
+	 	return height;
+}
+
 
 </script>
 
