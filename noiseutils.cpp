@@ -640,9 +640,9 @@ void WriterBMP::WriteDestFile ()
     Color* pSource = m_pSourceImage->GetSlabPtr (y);
     noise::uint8* pDest   = pLineBuffer;
     for (int x = 0; x < width; x++) {
-      *pDest++ = pSource->blue ;
-      *pDest++ = pSource->green;
-      *pDest++ = pSource->red  ;
+      *pDest++ = pSource->blue / 1.6 ;
+      *pDest++ = pSource->green / 1.6;
+      *pDest++ = pSource->red /1.6 ;
       ++pSource;
     }
     os.write ((char*)pLineBuffer, (size_t)bufferSize);
