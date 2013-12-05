@@ -75,7 +75,7 @@ function init() {
 
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-	var heightScale   = 200.0;
+	var heightScale   = 500.0;
 	currentTile = -1;
 	imgTilePaths= new Array();
 
@@ -95,7 +95,7 @@ function init() {
 	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping; 
 
 		
-	var planeGeo = new THREE.PlaneGeometry( 512, 512, 64,64 );
+	var planeGeo = new THREE.PlaneGeometry( 1024, 1024, 64,64 );
 
 
 
@@ -131,8 +131,8 @@ imgTilePaths[i*j] = imgPath;
 			var plane = new THREE.Mesh(	planeGeo, material );
 			plane.rotation.x = -Math.PI / 2;
 			plane.position.y = -100;
-			plane.position.z = 505*j;
-			plane.position.x = 505*i;
+			plane.position.z = 1007*j;
+			plane.position.x = 1007*i;
 
 			scene.add( plane );
 			
