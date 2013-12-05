@@ -95,20 +95,21 @@ function init() {
 	snowyTexture.wrapS = snowyTexture.wrapT = THREE.RepeatWrapping; 
 
 		
-	var planeGeo = new THREE.PlaneGeometry( 1024, 1024, 64,64 );
+	var planeGeo = new THREE.PlaneGeometry( 512, 512, 64,64 );
 
 
 
 	var i =0;
-	for (var i=0;i<4;i++) {
-		for (var j=0;j<4;j++){
+	for (var i=0;i<2;i++) {
+		for (var j=0;j<2;j++){
 
-var imgPath = 'http://localhost:81/orpgl/orpgl-mapgen/images/tile_'+i+'_'+j+'.bmp' ;
+var imgPath = 'http://localhost:81/orpgl/orpgl-mapgen/images/tile_'+j+'_'+i+'.bmp' ;
 
 imgTilePaths[i*j] = imgPath;
 		
 			var texture = new THREE.ImageUtils.loadTexture(imgPath);
-	 		
+			texture.magFilter = texture.minFilter = THREE.NearestFilter;
+
 	 		var uniforms = {
 			heightMap:	{ type: "t", value: texture },
 			heightScale:	    { type: "f", value: heightScale },
@@ -130,8 +131,8 @@ imgTilePaths[i*j] = imgPath;
 			var plane = new THREE.Mesh(	planeGeo, material );
 			plane.rotation.x = -Math.PI / 2;
 			plane.position.y = -100;
-			plane.position.z = -1022*j;
-			plane.position.x = 1022*i;
+			plane.position.z = 511*j;
+			plane.position.x = 511*i;
 
 			scene.add( plane );
 			
