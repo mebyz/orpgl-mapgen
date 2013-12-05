@@ -100,8 +100,8 @@ function init() {
 
 
 	var i =0;
-	for (var i=0;i<2;i++) {
-		for (var j=0;j<2;j++){
+	for (var i=0;i<10;i++) {
+		for (var j=0;j<10;j++){
 
 var imgPath = 'http://localhost:81/orpgl/orpgl-mapgen/images/tile_'+j+'_'+i+'.bmp' ;
 
@@ -131,8 +131,8 @@ imgTilePaths[i*j] = imgPath;
 			var plane = new THREE.Mesh(	planeGeo, material );
 			plane.rotation.x = -Math.PI / 2;
 			plane.position.y = -100;
-			plane.position.z = 511*j;
-			plane.position.x = 511*i;
+			plane.position.z = 505*j;
+			plane.position.x = 505*i;
 
 			scene.add( plane );
 			
