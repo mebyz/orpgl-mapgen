@@ -42,7 +42,7 @@ int main (int argc, char** argv) {
   finalTerrain.SetSourceModule (0, flatTerrain);
   finalTerrain.SetSourceModule (1, mountainTerrain);
   finalTerrain.SetControlModule (terrainType);
-  finalTerrain.SetEdgeFalloff (1.25);
+  finalTerrain.SetEdgeFalloff (0.05);
 
   // set builder source
   heightMapBuilder.SetSourceModule (finalTerrain);
@@ -69,7 +69,7 @@ int main (int argc, char** argv) {
 
       std::string result = renderer.Render ();
 
-      std::string ss = std::string("images/tile_")+ si.str() +std::string("_") + sj.str() + std::string(".bmp");
+      std::string ss = std::string("tile_")+ si.str() +std::string("_") + sj.str() + std::string(".bmp");
 
       writer.SetSourceImage (image);
       writer.SetDestFilename(ss);

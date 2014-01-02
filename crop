@@ -1,0 +1,19 @@
+#!/bin/bash
+convert $1.bmp -crop 10x10+1+1@ $1.jpg
+i=0;
+x=0;
+y=0;
+for f in `ls $1-*.jpg | sort -k1.7`; 
+do 
+if [ $(( $i % 10 )) -eq 0 ]
+then 
+let y=i;
+let x=(x+1);
+fi
+
+xx=$((x-1));
+let y=i-xx*10;
+echo "$f > $1_$(($xx))_$(($y)).jpg"; 
+mv $f $1_$(($xx))_$(($y)).jpg
+let i=i+1;
+done
